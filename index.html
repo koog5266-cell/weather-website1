@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>날씨 앱</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #4facfe, #00f2fe);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: white;
+    width: 90%;
+    max-width: 350px;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+select, button {
+    padding: 8px;
+    margin: 10px 5px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+}
+
+button {
+    background: #4facfe;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #007bff;
+}
+
+#icon {
+    font-size: 80px;
+    margin: 10px 0;
+}
+
+#temp {
+    font-size: 22px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>🌤 날씨 앱</h2>
+
+    <select id="citySelect" onchange="getWeather()">
+        <option value="Seoul">Seoul</option>
+        <option value="Busan">Busan</option>
+        <option value="Incheon">Incheon</option>
+        <option value="Daegu">Daegu</option>
+        <option value="Tokyo">Tokyo</option>
+        <option value="New York">New York</option>
+    </select>
+
+    <button onclick="getWeather()">🔄 새로고침</button>
+
+    <div id="icon">⏳</div>
+    <div id="weather">날씨를 불러오는 중...</div>
+    <div id="temp"></div>
+</div>
+
+<script>
+const apiKey = "6af5ca2a01b34cd32e0aa4f475f08e6d";
+
+function getWeather() {
+    const city = document.getElementById("citySelect").value;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=kr`;
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+
+        console.log(data); // 🔥 디버그용
+
+        if (data.cod !== 200) {
+            document.getElementById("weather").innerText = "에러: " + data.message;
+            document.getElementById("icon").innerText = "❌";
+            document.getElementById("temp").innerText = "";
+            return;
+        }
+
+        const weatherMain = data.weather[0].main;
+        const temperature = data.main.temp;
+
+        let icon = "";
+        let result = "";
+
+        if (weatherMain === "Rain") {
+            icon = "🌧";
+            result = "비가 오고 있습니다";
+        } 
+        else if (weatherMain === "Snow") {
+            icon = "❄";
+            result = "눈이 오고 있습니다";
+        } 
+        else if (weatherMain === "Clear") {
+            icon = "☀";
+            result = "맑습니다";
+        } 
+        else {
+            icon = "☁";
+            result = "흐리거나 기타 날씨입니다";
+        }
+
+        document.getElementById("icon").innerText = icon;
+        document.getElementById("weather").innerText = result;
+        document.getElementById("temp").innerText = temperature + "°C";
+
+    })
+    .catch(error => {
+        document.getElementById("weather").innerText = "날씨 정보를 불러올 수 없습니다.";
+        document.getElementById("icon").innerText = "❌";
+        document.getElementById("temp").innerText = "";
+    });
+}
+
+// 페이지 열리자마자 실행
+window.onload = getWeather;
+</script>
+
+</body>
+</html>
